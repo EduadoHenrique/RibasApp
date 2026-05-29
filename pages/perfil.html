@@ -1,73 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <title>Perfil</title>
-
-  <link rel="stylesheet" href="style.css">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RH Industrial - Meu Perfil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
 </head>
-
 <body class="admin-body">
 
   <main class="dashboard">
-
-    <header class="dashboard-header">
-
-      <h1 class="dashboard-title">
-        Meu Perfil
-      </h1>
-
-      <button
-        class="logout-btn"
-        onclick="window.location.href='index.html'"
-      >
-        Deslogar
-      </button>
-
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge">Configurações de Conta</div>
+        <h1 class="dashboard-title">Meu Perfil</h1>
+      </div>
+      <button id="logoutBtn" class="save-btn" style="background-color: #d9534f;">Deslogar</button>
     </header>
 
     <section class="form-panel">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label>Nome</label>
-          <input value="Carlos Silva" disabled>
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Segurança</div>
+          <h2 class="panel-title">Visualizar Dados & Alterar Senha</h2>
         </div>
-
-        <div class="form-group">
-          <label>Matrícula</label>
-          <input value="000123" disabled>
-        </div>
-
-        <div class="form-group">
-          <label>Cargo</label>
-          <input value="Administrador" disabled>
-        </div>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input value="carlos@ribas.com" disabled>
-        </div>
-
-        <div class="form-group">
-          <label>Nova senha</label>
-          <input type="password">
-        </div>
-
       </div>
 
-      <button class="save-btn">
-        Atualizar Senha
-      </button>
+      <div class="form-grid">
+        <div class="form-group"><label>Nome Completo</label><input type="text" id="perfNome" value="Carlos Henrique Silva" disabled></div>
+        <div class="form-group"><label>Matrícula Interna</label><input type="text" id="perfMatricula" value="M-88492" disabled></div>
+        <div class="form-group"><label>Cargo / Função</label><input type="text" id="perfFuncao" value="Analista de Recursos Humanos" disabled></div>
+        <div class="form-group"><label>E-mail Corporativo</label><input type="email" id="perfEmail" value="carlos.rh@industrial.com" disabled></div>
+        
+        <div class="form-group"><label style="color: #f0ad4e;">Nova Senha</label><input type="password" id="novaSenha" placeholder="Digite a nova senha"></div>
+        <div class="form-group"><label style="color: #f0ad4e;">Confirmar Senha</label><input type="password" id="confirmaSenha" placeholder="Confirme a nova senha"></div>
+      </div>
 
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='rh.html'">Voltar ao Painel</button>
+        <button class="save-btn" id="savePassword">Atualizar Senha</button>
+      </div>
     </section>
-
   </main>
 
+  <script src="../scripts/perfil.js"></script>
 </body>
 </html>

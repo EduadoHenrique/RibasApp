@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil - Operador</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge">Ficha do Profissional</div>
+        <h1 class="dashboard-title">Meu Perfil</h1>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Segurança da Conta</div>
+          <h2 class="panel-title">Dados Pessoais e Alteração de Senha</h2>
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top: 20px;">
+        <div class="form-group"><label>Nome</label><input type="text" value="Marcos de Souza Silva" disabled></div>
+        <div class="form-group"><label>Matrícula</label><input type="text" value="OP-2026-9" disabled></div>
+        <div class="form-group"><label>Função Operacional</label><input type="text" value="Operador de Guindaste Pesado" disabled></div>
+        <div class="form-group"><label>Categoria CNH</label><input type="text" value="Categoria E" disabled></div>
+        <div class="form-group"><label>Vencimento da CNH</label><input type="text" value="12/12/2028" disabled></div>
+        <div class="form-group"><label>Próximo Exame ASO</label><input type="text" value="15/10/2026" disabled></div>
+
+        <div class="form-group">
+          <label style="color: #f0ad4e;">Nova Senha de Acesso</label>
+          <input type="password" id="opNovaSenha" placeholder="Defina a nova senha">
+        </div>
+        <div class="form-group">
+          <label style="color: #f0ad4e;">Confirmar Nova Senha</label>
+          <input type="password" id="opConfirmaSenha" placeholder="Repita a nova senha">
+        </div>
+      </div>
+
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='operador.html'">Voltar ao Painel</button>
+        <button class="save-btn" id="btnSalvarSenha">Atualizar Minha Senha</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById("btnSalvarSenha").addEventListener("click", () => {
+      const nova = document.getElementById("opNovaSenha").value;
+      const confirma = document.getElementById("opConfirmaSenha").value;
+
+      if (!nova || !confirma) {
+        alert("Preencha e confirme a nova senha.");
+        return;
+      }
+      if (nova !== confirma) {
+        alert("Erro: As senhas digitadas não batem.");
+        return;
+      }
+
+      localStorage.setItem("password_operador", nova);
+      if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+      alert("Senha pessoal modificada com sucesso!");
+      
+      document.getElementById("opNovaSenha").value = "";
+      document.getElementById("opConfirmaSenha").value = "";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+  </script>
+</body>
+</html>

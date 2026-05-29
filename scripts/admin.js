@@ -1,111 +1,57 @@
 window.onload = () => {
 
-  const newVehicle =
-    document.getElementById("newVehicle");
+  const newVehicle = document.getElementById("newVehicle");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const vehicleList = document.getElementById("vehicleList");
 
-  const logoutBtn =
-    document.getElementById("logoutBtn");
-
-  const vehicleList =
-    document.getElementById("vehicleList");
-
+  // AQUI: Garante que o cadastro envie "novo" em vez de 0
   newVehicle.addEventListener("click", () => {
-
-    window.location.href =
-      "./veiculo.html?veiculoID=0";
+    window.location.href = "./veiculo.html?veiculoID=novo";
   });
 
   logoutBtn.addEventListener("click", () => {
-
-    window.location.href =
-      "../index.html";
+    window.location.href = "../index.html";
   });
 
   renderVehicles();
 
   function renderVehicles() {
-
-    const vehicles =
-      JSON.parse(localStorage.getItem("vehicles")) || [];
-
+    const vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
     vehicleList.innerHTML = "";
 
     if (vehicles.length === 0) {
-
-      vehicleList.innerHTML = `
-
-        <div class="empty-card">
-
-          Nenhum veículo cadastrado.
-
-        </div>
-      `;
-
+      vehicleList.innerHTML = `<div class="empty-card">Nenhum veículo cadastrado.</div>`;
       return;
     }
 
     vehicles.forEach((vehicle, index) => {
-
+      // A lista passa o índice puro (0, 1, 2...) que corresponde ao vetor do localStorage
       vehicleList.innerHTML += `
-
-        <div
-          class="operator-card"
-          onclick="editVehicle(${index})"
-        >
-
+        <div class="operator-card" onclick="editVehicle(${index})" style="cursor: pointer;">
           <div class="operator-top">
-
             <div>
-
               <h3>${vehicle.modelo}</h3>
-
               <p>${vehicle.categoria}</p>
-
             </div>
-
             <div class="status ${statusClass(vehicle.status)}">
-
               ${vehicle.status}
-
             </div>
-
           </div>
-
           <div class="operator-info">
-
-            <p>
-
-              <strong>Placa:</strong>
-
-              ${vehicle.placa}
-
-            </p>
-
+            <p><strong>Placa:</strong> ${vehicle.placa}</p>
           </div>
-
         </div>
       `;
     });
-
   }
 
   window.editVehicle = (index) => {
-
-    window.location.href =
-      `./veiculo.html?veiculoID=${index}`;
+    window.location.href = `./veiculo.html?veiculoID=${index}`;
   };
 
   function statusClass(status) {
-
-    if (status === "Liberado") {
-      return "green-status";
-    }
-
-    if (status === "Bloqueado") {
-      return "red-status";
-    }
-
+    if (status === "Liberado") return "green-status";
+    if (status === "Bloqueado") return "red-status";
     return "yellow-status";
   }
-
 };

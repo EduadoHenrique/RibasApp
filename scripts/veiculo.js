@@ -1,120 +1,63 @@
 window.onload = () => {
+  const saveVehicle = document.getElementById("saveVehicle");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-  const params =
-    new URLSearchParams(window.location.search);
+  // Captura o parâmetro da URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const veiculoIdParam = urlParams.get("veiculoID");
 
-  const veiculoID =
-    Number(params.get("veiculoID"));
+  const vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
 
-  const vehicles =
-    JSON.parse(localStorage.getItem("vehicles")) || [];
+  // Se o parâmetro existe, não é nulo e não é a palavra "novo", então é uma EDIÇÃO
+  const isEdit = (veiculoIdParam !== null && veiculoIdParam !== "novo");
+  
+  // Se for edição, o índice do veículo é exatamente o número vindo da URL (0, 1, 2...)
+  const vehicleIndex = isEdit ? parseInt(veiculoIdParam, 10) : -1;
 
-  const backBtn =
-    document.getElementById("backBtn");
+  // Carrega os dados se for Edição de um veículo existente
+  if (isEdit && vehicles[vehicleIndex]) {
+    const v = vehicles[vehicleIndex];
+    document.getElementById("formTitle").innerText = "Editar Veículo";
+    document.getElementById("formBadge").innerText = "Edição de Frota";
 
-  const deleteBtn =
-    document.getElementById("deleteVehicle");
-
-  backBtn.addEventListener("click", () => {
-
-    window.location.href =
-      "./admin.html";
-  });
-
-  if (veiculoID === 0) {
-
-    deleteBtn.style.display = "none";
+    document.getElementById("modelo").value = v.modelo || "";
+    document.getElementById("categoria").value = v.categoria || "";
+    document.getElementById("placa").value = v.placa || "";
+    document.getElementById("status").value = v.status || "Liberado";
+  } else {
+    // Garante que se for um novo veículo, o título esteja correto
+    document.getElementById("formTitle").innerText = "Novo Veículo";
+    document.getElementById("formBadge").innerText = "Frota Industrial";
   }
 
-  if (veiculoID !== 0) {
-
-    const vehicle = vehicles[veiculoID];
-
-    document.getElementById("placa").value =
-      vehicle.placa;
-
-    document.getElementById("modelo").value =
-      vehicle.modelo;
-
-    document.getElementById("categoria").value =
-      vehicle.categoria;
-
-    document.getElementById("status").value =
-      vehicle.status;
-
-    document.getElementById("capacidade").value =
-      vehicle.capacidade;
-
-    document.getElementById("inspecao").value =
-      vehicle.inspecao;
-  }
-
-  document
-    .getElementById("saveVehicle")
-    .addEventListener("click", saveVehicle);
-
-  deleteBtn.addEventListener("click", deleteVehicle);
-
-  function saveVehicle() {
-
-    const vehicle = {
-
-      placa: value("placa"),
-
-      modelo: value("modelo"),
-
-      categoria: value("categoria"),
-
-      status: value("status"),
-
-      capacidade: value("capacidade"),
-
-      inspecao: value("inspecao")
+  // Salvar ou Editar
+  saveVehicle.addEventListener("click", () => {
+    const vehicleData = {
+      modelo: document.getElementById("modelo").value,
+      categoria: document.getElementById("categoria").value,
+      placa: document.getElementById("placa").value,
+      status: document.getElementById("status").value
     };
 
-    if (veiculoID === 0) {
-
-      vehicles.push(vehicle);
-
-    } else {
-
-      vehicles[veiculoID] = vehicle;
+    if (!vehicleData.modelo || !vehicleData.placa) {
+      alert("Por favor, preencha o Modelo e a Placa.");
+      return;
     }
 
-    localStorage.setItem(
-      "vehicles",
-      JSON.stringify(vehicles)
-    );
+    if (isEdit && vehicleIndex >= 0) {
+      // Edita exatamente o veículo clicado na lista operacional
+      vehicles[vehicleIndex] = vehicleData;
+    } else {
+      // Adiciona um novo veículo ao final da lista
+      vehicles.push(vehicleData);
+    }
 
-    alert("Veículo salvo com sucesso.");
+    localStorage.setItem("vehicles", JSON.stringify(vehicles));
+    window.location.href = "admin.html"; // Volta para a lista operacional atualizada
+  });
 
-    window.location.href =
-      "./admin.html";
-  }
-
-  function deleteVehicle() {
-
-    const confirmDelete =
-      confirm("Deseja excluir este veículo?");
-
-    if (!confirmDelete) return;
-
-    vehicles.splice(veiculoID, 1);
-
-    localStorage.setItem(
-      "vehicles",
-      JSON.stringify(vehicles)
-    );
-
-    alert("Veículo removido.");
-
-    window.location.href =
-      "./admin.html";
-  }
-
-  function value(id) {
-
-    return document.getElementById(id).value;
-  }
-
+  logoutBtn.addEventListener("click", () => {
+    alert("Efetuando logout...");
+    window.location.href = "../index.html";
+  });
 };

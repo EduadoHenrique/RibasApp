@@ -3,173 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>RH Industrial</title>
-
+  <title>RH Industrial - Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
 </head>
-
 <body class="admin-body">
 
   <main class="dashboard">
-
-    <!-- HEADER -->
-    <header class="dashboard-header">
-
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <div class="mini-badge">
-          Recursos Humanos
-        </div>
-
-        <h1 class="dashboard-title">
-          Gestão de Operadores
-        </h1>
+        <div class="mini-badge">Recursos Humanos</div>
+        <h1 class="dashboard-title">Gestão de Operadores</h1>
       </div>
-
+      <div style="display: flex; gap: 10px;">
+        <a href="perfil.html" class="save-btn" style="background-color: #555; text-decoration: none; display: flex; align-items: center; padding: 0 15px;">Meu Perfil</a>
+        <button id="logoutBtn" class="save-btn" style="background-color: #d9534f;">Deslogar</button>
+      </div>
     </header>
 
-    <!-- ALERTAS -->
     <section class="stats-grid">
-
       <div class="stat-card warning">
         <span>CNHs vencendo</span>
         <h2 id="cnhAlert">00</h2>
         <p>Operadores com CNH próxima do vencimento.</p>
       </div>
-
       <div class="stat-card danger">
         <span>ASOs vencidos</span>
         <h2 id="asoAlert">00</h2>
         <p>Operadores impedidos de operar.</p>
       </div>
-
       <div class="stat-card success">
         <span>Operadores ativos</span>
         <h2 id="activeOperators">00</h2>
         <p>Profissionais liberados para operação.</p>
       </div>
-
     </section>
 
-    <!-- FORM -->
-    <section class="form-panel">
-
-      <div class="panel-top">
-
-        <div>
-          <div class="mini-badge green">
-            Cadastro RH
-          </div>
-
-          <h2 class="panel-title">
-            Novo Operador
-          </h2>
-        </div>
-
-        <div class="status-pill">
-          Sistema Online
-        </div>
-
-      </div>
-
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label>Nome</label>
-          <input type="text" id="nome">
-        </div>
-
-        <div class="form-group">
-          <label>Matrícula</label>
-          <input type="text" id="matricula">
-        </div>
-
-        <div class="form-group">
-          <label>Função</label>
-          <input type="text" id="funcao">
-        </div>
-
-        <div class="form-group">
-          <label>Telefone</label>
-          <input type="text" id="telefone">
-        </div>
-
-        <div class="form-group">
-          <label>CNH</label>
-
-          <select id="cnh">
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-            <option>D</option>
-            <option>E</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Validade CNH</label>
-          <input type="date" id="validadeCnh">
-        </div>
-
-        <div class="form-group">
-          <label>ASO</label>
-          <input type="date" id="aso">
-        </div>
-
-        <div class="form-group">
-          <label>Treinamento</label>
-          <input type="text" id="treinamento">
-        </div>
-
-        <div class="form-group">
-          <label>Validade Treinamento</label>
-          <input type="date" id="validadeTreinamento">
-        </div>
-
-        <div class="form-group">
-          <label>Status</label>
-
-          <select id="status">
-            <option>Ativo</option>
-            <option>Bloqueado</option>
-            <option>Férias</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="actions">
-        <button class="save-btn" id="saveOperator">
-          Salvar Operador
-        </button>
-      </div>
-
+    <section style="margin: 20px 0; text-align: right;">
+      <a href="formulario.html?userId=0" class="save-btn" style="text-decoration: none; display: inline-block;">+ Novo Operador</a>
     </section>
 
-    <!-- LISTA -->
     <section class="operator-section">
-
       <div class="panel-top">
-        <h2 class="panel-title small">
-          Operadores cadastrados
-        </h2>
+        <h2 class="panel-title small">Operadores cadastrados</h2>
       </div>
-
       <div class="operator-grid" id="operatorList"></div>
-
     </section>
-
   </main>
 
   <script src="../scripts/rh.js"></script>
-
 </body>
 </html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check-in de Equipamento</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge">Inspeção Pré-Operacional</div>
+        <h1 class="dashboard-title">Check-in de Máquina</h1>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <h2 class="panel-title">Inspeção Visual e Funcional</h2>
+      </div>
+
+      <div class="form-grid" style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+        <div class="form-group">
+          <label>Selecione o Equipamento que irá Operar</label>
+          <select id="equipamentoSelect" style="height: 50px; font-size: 1.1rem;">
+            <option>Guindaste Liebherr (ABC-1234)</option>
+            <option>Empilhadeira Hyster (FGT-8821)</option>
+            <option>Caminhão Munck (JKL-9012)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+          <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;">
+            <input type="checkbox" id="itemOleo" style="width: 25px; height: 25px;"> Nível de Óleo e Fluidos regularizado
+          </label>
+          <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;">
+            <input type="checkbox" id="itemFreios" style="width: 25px; height: 25px;"> Teste de Freio de serviço e estacionamento aprovado
+          </label>
+          <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;">
+            <input type="checkbox" id="itemLuzes" style="width: 25px; height: 25px;"> Sistema de iluminação e setas funcionando
+          </label>
+          <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;">
+            <input type="checkbox" id="itemEstrutura" style="width: 25px; height: 25px;"> Ausência de rachaduras estruturais visíveis
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Observações / Anormalidades detectadas</label>
+          <textarea id="obsEquipamento" rows="3" placeholder="Caso haja avarias, relate aqui antes de ligar o motor..." style="padding: 10px; font-family: inherit; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+        </div>
+      </div>
+
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='operador.html'">Voltar</button>
+        <button class="save-btn" id="btnSalvarCheckin">Enviar Inspeção</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById("btnSalvarCheckin").addEventListener("click", () => {
+      // Dispara vibração no celular do operador (Feedback tátil para ambientes barulhentos)
+      if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+
+      alert("Check-in do Equipamento enviado com sucesso!");
+      window.location.href = "operador.html";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+  </script>
+</body>
+</html>

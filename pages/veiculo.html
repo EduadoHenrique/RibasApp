@@ -2,185 +2,72 @@
 <html lang="pt-BR">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Cadastro de Veículo</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Cadastro de Veículo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
-
 </head>
 
 <body class="admin-body">
 
   <main class="dashboard">
 
-    <header class="dashboard-header">
-
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
-
-        <div class="mini-badge">
-          Gestão Operacional
-        </div>
-
-        <h1 class="dashboard-title">
-          Cadastro de Veículo
-        </h1>
-
+        <div class="mini-badge" id="formBadge">Frota Industrial</div>
+        <h1 class="dashboard-title" id="formTitle">Novo Veículo</h1>
       </div>
 
-      <div class="header-actions">
-
-        <button
-          class="back-btn"
-          id="backBtn"
-        >
-          Voltar
-        </button>
-
-      </div>
-
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
     </header>
 
-    <section class="form-panel focus-panel">
-
+    <section class="form-panel">
       <div class="panel-top">
-
         <div>
-
-          <div class="mini-badge green">
-            Cadastro Industrial
-          </div>
-
-          <h2 class="panel-title small">
-            Dados Operacionais
-          </h2>
-
+          <div class="mini-badge green">Formulário</div>
+          <h2 class="panel-title">Dados do Equipamento</h2>
         </div>
-
-        <div class="status-pill">
-          Sistema Online
-        </div>
-
+        <div class="status-pill">Sistema Online</div>
       </div>
 
       <div class="form-grid">
-
         <div class="form-group">
-
-          <label>Placa</label>
-
-          <input
-            type="text"
-            id="placa"
-            placeholder="ABC-1234"
-          >
-
+          <label>Modelo / Equipamento</label>
+          <input type="text" id="modelo">
         </div>
 
         <div class="form-group">
-
-          <label>Modelo</label>
-
-          <input
-            type="text"
-            id="modelo"
-            placeholder="Liebherr LTM 1050"
-          >
-
-        </div>
-
-        <div class="form-group">
-
           <label>Categoria</label>
-
-          <select id="categoria">
-
-            <option>Guindaste</option>
-            <option>Empilhadeira</option>
-            <option>Caminhão</option>
-            <option>Munck</option>
-
-          </select>
-
+          <input type="text" id="categoria" placeholder="Ex: Caminhão, Escavadeira...">
         </div>
 
         <div class="form-group">
+          <label>Placa / Identificação</label>
+          <input type="text" id="placa">
+        </div>
 
+        <div class="form-group">
           <label>Status Operacional</label>
-
           <select id="status">
-
             <option>Liberado</option>
-            <option>Pendente</option>
             <option>Bloqueado</option>
-
+            <option>Em Manutenção</option>
           </select>
-
         </div>
-
-        <div class="form-group">
-
-          <label>Capacidade</label>
-
-          <input
-            type="text"
-            id="capacidade"
-            placeholder="50 toneladas"
-          >
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Última Inspeção</label>
-
-          <input
-            type="date"
-            id="inspecao"
-          >
-
-        </div>
-
       </div>
 
-      <div class="action-row">
-
-        <button
-          class="save-btn"
-          id="saveVehicle"
-        >
-          Salvar Veículo
-        </button>
-
-        <button
-          class="delete-btn"
-          id="deleteVehicle"
-        >
-          Excluir Veículo
-        </button>
-
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='admin.html'">Voltar</button>
+        <button class="save-btn" id="saveVehicle">Salvar Veículo</button>
       </div>
-
     </section>
 
   </main>
 
   <script src="../scripts/veiculo.js"></script>
-
 </body>
+
 </html>

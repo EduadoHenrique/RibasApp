@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload de Documentação do Veículo</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge" style="background-color: #5cb85c;">Atualização de Frota</div>
+        <h1 class="dashboard-title">Upload de Documento</h1>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <h2 class="panel-title">Vincular Arquivo ao Veículo</h2>
+      </div>
+
+      <div class="form-grid" style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+        <div class="form-group">
+          <label>Identificação do Veículo Alvo</label>
+          <select style="height: 50px; font-size: 1.1rem;">
+            <option>Guindaste Liebherr (ABC-1234)</option>
+            <option>Empilhadeira Hyster (FGT-8821)</option>
+            <option>Caminhão Munck (JKL-9012)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Documentação</label>
+          <select style="height: 50px; font-size: 1.1rem;">
+            <option>CRLV / Licenciamento Anual</option>
+            <option>Laudo de Inspeção Certificada (ART)</option>
+            <option>Seguro Obrigatório / RCTR-C</option>
+            <option>Outros Recibos de Campo</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="border: 2px dashed #ccc; padding: 30px; text-align: center; border-radius: 6px; background-color: #fafafa;">
+          <label style="cursor: pointer; display: block; font-size: 1.1rem; font-weight: 500;">
+            📸 Clique para Tirar Foto ou Anexar PDF
+            <input type="file" accept="image/*,application/pdf" style="display: none;" id="fileInput">
+          </label>
+          <p id="fileNameDisplay" style="margin-top: 10px; color: #777; font-size: 0.9rem;">Nenhum arquivo selecionado</p>
+        </div>
+      </div>
+
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='operador.html'">Voltar</button>
+        <button class="save-btn" style="background-color: #5cb85c;" id="btnUpload">Fazer Upload</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const fileNameDisplay = document.getElementById("fileNameDisplay");
+
+    fileInput.addEventListener("change", (e) => {
+      if(e.target.files.length > 0) {
+        fileNameDisplay.innerText = "Arquivo pronto: " + e.target.files[0].name;
+        fileNameDisplay.style.color = "#5cb85c";
+      }
+    });
+
+    document.getElementById("btnUpload").addEventListener("click", () => {
+      if(!fileInput.files.length) {
+        alert("Por favor, selecione ou tire uma foto de um documento antes de enviar.");
+        return;
+      }
+      if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+      alert("Documento anexado e enviado ao RH e Gerência Operacional!");
+      window.location.href = "operador.html";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+  </script>
+</body>
+</html>
