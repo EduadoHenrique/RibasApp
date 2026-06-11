@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Cadastro de Veículo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="admin-body">
+
+  <main class="dashboard">
+
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge" id="formBadge">Frota Industrial</div>
+        <h1 class="dashboard-title" id="formTitle">Novo Veículo</h1>
+      </div>
+
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Formulário</div>
+          <h2 class="panel-title">Dados do Equipamento</h2>
+        </div>
+        <div class="status-pill">Sistema Online</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Modelo / Equipamento</label>
+          <input type="text" id="modelo">
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" id="categoria" placeholder="Ex: Caminhão, Escavadeira...">
+        </div>
+
+        <div class="form-group">
+          <label>Placa / Identificação</label>
+          <input type="text" id="placa">
+        </div>
+
+        <div class="form-group">
+          <label>Status Operacional</label>
+          <select id="status">
+            <option>Liberado</option>
+            <option>Bloqueado</option>
+            <option>Em Manutenção</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='admin.html'">Voltar</button>
+        <button class="save-btn" id="saveVehicle">Salvar Veículo</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="../scripts/auth.js" data-roles="admin"></script>
+  <script src="../scripts/veiculo.js"></script>
+</body>
+
+</html>

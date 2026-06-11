@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Meu Perfil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge">Configurações do Admin</div>
+        <h1 class="dashboard-title">Perfil do Administrador</h1>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <style>.first-login-banner{display:none;align-items:center;gap:12px;background:#fff3cd;border:1px solid #ffc107;border-left:4px solid #e6a800;border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:.95rem;color:#856404}.first-login-banner.visible{display:flex}</style>
+    <div class="first-login-banner" id="firstLoginBanner">🔐 <span><strong>Primeiro acesso detectado!</strong> Altere sua senha padrão antes de continuar.</span></div>
+
+    <!-- Dados pessoais (somente visualização) -->
+    <section class="form-panel" style="margin-bottom: 20px;">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge">Informações da Conta</div>
+          <h2 class="panel-title">Dados do Administrador</h2>
+        </div>
+        <div class="status-pill" style="background:#c0392b; color:white;">Administrador</div>
+      </div>
+
+      <div class="form-grid" style="margin-top:15px;">
+        <div class="form-group">
+          <label>Nome do Administrador</label>
+          <input type="text" id="adminNome" disabled>
+        </div>
+        <div class="form-group">
+          <label>Identificação / ID</label>
+          <input type="text" id="adminId" disabled>
+        </div>
+        <div class="form-group">
+          <label>E-mail Associado</label>
+          <input type="text" id="adminEmail" disabled>
+        </div>
+        <div class="form-group">
+          <label>Nível de Acesso</label>
+          <input type="text" id="adminNivel" disabled>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alterar senha -->
+    <section class="form-panel">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Segurança</div>
+          <h2 class="panel-title">Alterar Senha</h2>
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top:15px;">
+        <div class="form-group">
+          <label style="color:#f0ad4e;">Nova Senha</label>
+          <input type="password" id="novaSenha" placeholder="Insira a nova senha">
+        </div>
+        <div class="form-group">
+          <label style="color:#f0ad4e;">Confirmar Nova Senha</label>
+          <input type="password" id="confirmaSenha" placeholder="Confirme a nova senha">
+        </div>
+      </div>
+
+      <div class="actions" style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+        <button class="save-btn" style="background-color:#555;" onclick="window.location.href='admin.html'">← Voltar ao Painel</button>
+        <button class="save-btn" id="updatePasswordBtn">Atualizar Senha</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../scripts/auth.js" data-roles="admin"></script>
+  <script src="../scripts/perfil_adimin.js"></script>
+</body>
+</html>

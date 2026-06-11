@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificação de EPIs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge" style="background-color: #f0ad4e;">Segurança do Trabalho</div>
+        <h1 class="dashboard-title">Check-in de EPIs</h1>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Deslogar</button>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <h2 class="panel-title">Declaração de Proteção Individual</h2>
+      </div>
+      <p style="margin-top: 15px; color: #555;">Confirme que você está portando e utilizando corretamente os EPIs regulamentares:</p>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;"><input type="checkbox" style="width: 25px; height: 25px;"> Capacete de Proteção com jugular ajustada</label>
+        <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;"><input type="checkbox" style="width: 25px; height: 25px;"> Colete Refletivo e Identificado</label>
+        <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;"><input type="checkbox" style="width: 25px; height: 25px;"> Calçado de Segurança com biqueira</label>
+        <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;"><input type="checkbox" style="width: 25px; height: 25px;"> Luvas de Proteção Mecânica</label>
+        <label style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; cursor: pointer;"><input type="checkbox" style="width: 25px; height: 25px;"> Óculos de Proteção (se aplicável)</label>
+      </div>
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="save-btn" style="background-color: #555;" id="btnVoltar">← Voltar</button>
+        <button class="save-btn" style="background-color: #f0ad4e;" id="btnEpi">✅ Validar EPIs</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../scripts/auth.js" data-roles="admin,rh,operador"></script>
+  <script>
+    document.getElementById("logoutBtn").addEventListener("click", () => RibasAuth.logout());
+    document.getElementById("btnVoltar").addEventListener("click", () => window.location.href = "operador.html");
+    document.getElementById("btnEpi").addEventListener("click", () => {
+      if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+      alert("Segurança validada! Tenha um excelente turno de trabalho.");
+      window.location.href = "operador.html";
+    });
+  </script>
+</body>
+</html>

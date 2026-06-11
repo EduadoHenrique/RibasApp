@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RH Industrial - Cadastro de Operador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge green" id="formBadge">Cadastro RH</div>
+        <h1 class="dashboard-title" id="formTitle">Novo Operador</h1>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="perfil.html" class="save-btn" style="background-color: #555; text-decoration: none; display: flex; align-items: center; padding: 0 15px;">Meu Perfil</a>
+        <button id="logoutBtn" class="save-btn" style="background-color: #d9534f;">Deslogar</button>
+      </div>
+    </header>
+
+    <section class="form-panel">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Formulário</div>
+          <h2 class="panel-title">Dados do Profissional</h2>
+        </div>
+        <div class="status-pill" id="userIdBadge" style="font-family: monospace; font-size: 0.85rem;"></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group"><label>Nome</label><input type="text" id="nome" placeholder="Nome completo do operador"></div>
+        <div class="form-group"><label>Matrícula</label><input type="text" id="matricula" placeholder="Ex: OP-2026-01"></div>
+        <div class="form-group"><label>Função</label><input type="text" id="funcao" placeholder="Ex: Operador de Guindaste"></div>
+        <div class="form-group"><label>Telefone</label><input type="text" id="telefone" placeholder="(00) 00000-0000"></div>
+        <div class="form-group">
+          <label>CNH</label>
+          <select id="cnh">
+            <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Validade CNH</label><input type="date" id="validadeCnh"></div>
+        <div class="form-group"><label>ASO (Validade)</label><input type="date" id="aso"></div>
+        <div class="form-group"><label>Treinamento</label><input type="text" id="treinamento" placeholder="Ex: NR-11 Empilhadeira"></div>
+        <div class="form-group"><label>Validade Treinamento</label><input type="date" id="validadeTreinamento"></div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="status">
+            <option>Ativo</option><option>Bloqueado</option><option>Férias</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="deleteSection" style="display: none; margin-top: 10px; padding: 15px; background: #fff5f5; border: 1px solid #f5c6cb; border-radius: 8px;">
+        <p style="color: #721c24; font-size: 0.9rem; margin-bottom: 10px;">⚠️ Esta ação é irreversível. O operador será removido permanentemente do sistema.</p>
+        <button class="save-btn" id="deleteOperator" style="background-color: #c0392b;">Excluir Operador</button>
+      </div>
+
+      <div class="actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="save-btn" style="background-color: #555;" onclick="window.location.href='rh.html'">← Voltar</button>
+        <button class="save-btn" id="saveOperator">Salvar Operador</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../scripts/auth.js" data-roles="admin,rh"></script>
+  <script src="../scripts/cadastro_usuario.js"></script>
+</body>
+</html>

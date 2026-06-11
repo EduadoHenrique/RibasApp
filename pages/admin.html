@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Frota Industrial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="admin-body">
+
+  <main class="dashboard">
+    <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="mini-badge">Gestão Operacional</div>
+        <h1 class="dashboard-title">Frota Industrial</h1>
+      </div>
+      <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+        <a href="perfil_admin.html" class="new-btn" style="background-color: #555; text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 0 15px;">Meu Perfil</a>
+        <button class="new-btn" id="newVehicle">+ Novo Veículo</button>
+        <button class="logout-btn" id="logoutBtn">Deslogar</button>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card warning">
+        <span>Documentos vencendo</span>
+        <h2 id="warningCount">00</h2>
+        <p>Certificações expiram nos próximos 30 dias.</p>
+      </div>
+      <div class="stat-card danger">
+        <span>Equipamentos bloqueados</span>
+        <h2 id="blockedCount">00</h2>
+        <p>Veículos impedidos de operar.</p>
+      </div>
+      <div class="stat-card success">
+        <span>Operação ativa</span>
+        <h2 id="activeCount">00</h2>
+        <p>Equipamentos liberados para campo.</p>
+      </div>
+    </section>
+
+    <section class="operator-section">
+      <div class="panel-top">
+        <div>
+          <div class="mini-badge green">Frota Industrial</div>
+          <h2 class="panel-title small">Lista Operacional</h2>
+        </div>
+      </div>
+      <div class="operator-grid" id="vehicleList"></div>
+    </section>
+  </main>
+
+  <script src="../scripts/auth.js" data-roles="admin"></script>
+  <script src="../scripts/admin.js"></script>
+</body>
+</html>
