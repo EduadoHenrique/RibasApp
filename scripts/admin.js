@@ -1,18 +1,36 @@
+/**
+ * admin.js — Painel do Administrador (lista de veículos/frota)
+ * Usa RibasAPI.Veiculos (GET /veiculos)
+ */
+
 window.onload = () => {
   const newVehicle = document.getElementById("newVehicle");
   const logoutBtn = document.getElementById("logoutBtn");
   const vehicleList = document.getElementById("vehicleList");
 
   newVehicle.addEventListener("click", () => {
-    window.location.href = "./cadastro_veiculo.html?veiculoID=0";
+    window.location.href = "./cadastro_veiculo.html?veiculoID=novo";
   });
 
   logoutBtn.addEventListener("click", () => RibasAuth.logout());
 
   renderVehicles();
 
-  function renderVehicles() {
-    const vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
+  async function renderVehicles() {
+    vehicleList.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#888;">Carregando frota...</div>`;
+
+    let vehicles = [];
+    try {
+      vehicles = await RibasAPI.Veiculos.list();
+    } catch (error) {
+      vehicleList.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:40px; color:#c0392b;">
+          <p style="font-size:1.1rem;">Não foi possível carregar a frota.</p>
+          <p style="font-size:0.9rem; margin-top:8px;">${error.message}</p>
+        </div>`;
+      return;
+    }
+
     vehicleList.innerHTML = "";
 
     let blocked = 0, active = 0, warning = 0;
@@ -21,38 +39,35 @@ window.onload = () => {
       vehicleList.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:40px; color:#888;">
           <p style="font-size:1.1rem;">Nenhum veículo cadastrado ainda.</p>
-          <button class="save-btn" onclick="window.location.href='cadastro_veiculo.html?veiculoID=0'" style="margin-top:15px;">+ Cadastrar Primeiro Veículo</button>
+          <button class="save-btn" onclick="window.location.href='cadastro_veiculo.html?veiculoID=novo'" style="margin-top:15px;">+ Cadastrar Primeiro Veículo</button>
         </div>`;
       updateStats(0, 0, 0);
       return;
     }
 
-    vehicles.forEach((v, index) => {
+    vehicles.forEach((v) => {
       if (v.status === "Bloqueado") blocked++;
       else if (v.status === "Liberado") active++;
-      if (v.vencimentoDoc) {
-        const days = calcDays(v.vencimentoDoc);
+      if (v.ultimaInspecao) {
+        const days = calcDays(v.ultimaInspecao);
         if (days <= 30 && days > 0) warning++;
       }
 
-      const docsCount = (v.documentos || []).length;
-
       vehicleList.innerHTML += `
-        <div class="operator-card" style="cursor:pointer;" onclick="window.location.href='cadastro_veiculo.html?veiculoID=${index + 1}'">
+        <div class="operator-card" style="cursor:pointer;" onclick="window.location.href='cadastro_veiculo.html?veiculoID=${v._id}'">
           <div class="operator-top">
             <div>
               <h3>${v.modelo}</h3>
-              <p>${v.categoria}</p>
+              <p>${categoriaLabel(v.categoria)}</p>
             </div>
-            <div class="status ${statusClass(v.status)}">${v.status}</div>
+            <div class="status ${statusClass(v.status)}">${v.status || "-"}</div>
           </div>
           <div class="operator-info">
             <p><strong>Placa:</strong> ${v.placa}</p>
-            <p><strong>Ano:</strong> ${v.ano || "-"}</p>
-            <p><strong>Responsável:</strong> ${v.responsavel || "-"}</p>
-            <p><strong>Docs anexados:</strong> ${docsCount} arquivo${docsCount !== 1 ? "s" : ""}</p>
+            <p><strong>Capacidade:</strong> ${v.capacidade != null ? v.capacidade : "-"}</p>
+            <p><strong>Responsável:</strong> ${v.operador?.nome || "-"}</p>
           </div>
-          ${v.vencimentoDoc && calcDays(v.vencimentoDoc) <= 30 ? `<div class="alerts"><div class="alert warning-alert">Doc. vencendo em ${calcDays(v.vencimentoDoc)} dias</div></div>` : ""}
+          ${v.ultimaInspecao && calcDays(v.ultimaInspecao) <= 30 ? `<div class="alerts"><div class="alert warning-alert">Inspeção vencendo em ${calcDays(v.ultimaInspecao)} dias</div></div>` : ""}
         </div>
       `;
     });
@@ -75,5 +90,10 @@ window.onload = () => {
     if (s === "Liberado") return "green-status";
     if (s === "Bloqueado") return "red-status";
     return "yellow-status";
+  }
+
+  function categoriaLabel(cat) {
+    const map = { GUINDASTE: "Guindaste", CAMINHAO: "Caminhão", MUNCK: "Munck", EMPILHADEIRA: "Empilhadeira" };
+    return map[cat] || cat || "-";
   }
 };

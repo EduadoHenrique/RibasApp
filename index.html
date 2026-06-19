@@ -90,7 +90,7 @@
           <label>Matrícula / Usuário</label>
 
           <div class="input-wrap">
-            <input type="text" placeholder="000123">
+            <input type="text" id="matricula" placeholder="000123">
           </div>
         </div>
 
@@ -98,39 +98,17 @@
           <label>Senha</label>
 
           <div class="input-wrap">
-            <input type="password" placeholder="••••••••">
+            <input type="password" id="senha" placeholder="••••••••">
           </div>
         </div>
 
-        <div class="form-group">
-
-          <label>Nível de acesso</label>
-
-          <div class="access-grid">
-
-            <div class="access-card active">
-              <div class="access-icon">🦺</div>
-              <span>Operador</span>
-            </div>
-
-            <div class="access-card">
-              <div class="access-icon">📋</div>
-              <span>RH</span>
-            </div>
-
-            <div class="access-card">
-              <div class="access-icon">🛡️</div>
-              <span>Administrador</span>
-            </div>
-
-          </div>
-
-        </div>
+        <div id="loginError" style="display:none; color:#c0392b; font-size:0.85rem; margin-top:-4px; margin-bottom:8px;"></div>
 
         <button class="btn-login" id="loginBtn">
         Entrar no sistema
         </button>
 
+        <script src="scripts/api.js"></script>
         <script src="app.js"></script>
 
         <div class="bottom-links">

@@ -1,26 +1,37 @@
+/**
+ * cadastro_veiculo.js — Ficha de veículo (criar/editar/visualizar)
+ *
+ * Usa RibasAPI.Veiculos (POST/GET/PUT/DELETE /veiculos) e
+ * RibasAPI.DocumentosVeiculo (POST/GET/DELETE /documentos-veiculo).
+ *
+ * Documentos: o backend só guarda uma URL (documentoUrl), não o arquivo.
+ * Por isso o anexo aqui é feito colando um link (Drive, OneDrive etc.).
+ */
+
 window.onload = () => {
   // ── Parâmetros & estado ─────────────────────────────────────────────────
   const urlParams  = new URLSearchParams(window.location.search);
-  const veiculoId  = parseInt(urlParams.get("veiculoID")) || 0;
-  const isNew      = veiculoId === 0;
-  const vehicleIdx = isNew ? -1 : veiculoId - 1;
+  const veiculoIdParam = urlParams.get("veiculoID");
+  const isNew      = !veiculoIdParam || veiculoIdParam === "novo" || veiculoIdParam === "0";
+  const veiculoId  = isNew ? null : veiculoIdParam;
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+  const currentUser = (window.RibasAuth && window.RibasAuth.user) || {};
   const isAdmin     = currentUser.role === "admin";
 
   let editMode = isNew && isAdmin; // novo veículo já começa editável (se admin)
-  let vehicles  = JSON.parse(localStorage.getItem("vehicles")) || [];
+  let currentVeiculo = null; // dados carregados da API
+  let currentDocumentos = []; // documentos deste veículo
 
   // ── Elementos ──────────────────────────────────────────────────────────
   const logoutBtn      = document.getElementById("logoutBtn");
   const editBtn        = document.getElementById("editBtn");
-  const saveBtn        = document.getElementById("saveVehicle");
+  const saveBtn         = document.getElementById("saveVehicle");
   const deleteSection  = document.getElementById("deleteSection");
-  const deleteBtn      = document.getElementById("deleteVehicle");
+  const deleteBtn       = document.getElementById("deleteVehicle");
   const adminActions   = document.getElementById("adminActions");
-  const viewActions    = document.getElementById("viewActions");
+  const viewActions     = document.getElementById("viewActions");
   const uploadSection  = document.getElementById("uploadSection");
-  const qrSection      = document.getElementById("qrSection");
+  const qrSection       = document.getElementById("qrSection");
   const readonlyBanner = document.getElementById("readonlyBanner");
   const veiculoIdBadge = document.getElementById("veiculoIdBadge");
   const formInputs     = ["modelo","categoria","placa","ano","responsavel","vencimentoDoc","status","obs"];
@@ -38,14 +49,18 @@ window.onload = () => {
   logoutBtn.addEventListener("click", () => RibasAuth.logout());
 
   // ── Inicializar interface ───────────────────────────────────────────────
-  function init() {
+  async function init() {
     if (isNew) {
       document.getElementById("formTitle").innerText = "Novo Veículo";
       document.getElementById("formBadge").innerText = "Frota Industrial";
       veiculoIdBadge.textContent = "ID: Novo";
-    } else {
-      const v = vehicles[vehicleIdx];
-      if (!v) { alert("Veículo não encontrado."); backPage(); return; }
+      applyPermissions();
+      return;
+    }
+
+    try {
+      const v = await RibasAPI.Veiculos.getById(veiculoId);
+      currentVeiculo = v;
 
       document.getElementById("formTitle").innerText = v.modelo;
       document.getElementById("formBadge").innerText = "Ficha do Veículo";
@@ -53,22 +68,33 @@ window.onload = () => {
 
       // Preenche campos
       document.getElementById("modelo").value         = v.modelo         || "";
-      document.getElementById("categoria").value      = v.categoria      || "";
+      document.getElementById("categoria").value      = v.categoria      || "GUINDASTE";
       document.getElementById("placa").value          = v.placa          || "";
       document.getElementById("ano").value            = v.ano            || "";
-      document.getElementById("responsavel").value    = v.responsavel    || "";
-      document.getElementById("vencimentoDoc").value  = v.vencimentoDoc  || "";
+      document.getElementById("responsavel").value    = v.operador?.nome || "";
+      document.getElementById("vencimentoDoc").value  = toDateInputValue(v.ultimaInspecao);
       document.getElementById("status").value         = v.status         || "Liberado";
-      document.getElementById("obs").value            = v.obs            || "";
+      document.getElementById("obs").value             = v.obs            || "";
 
       // QR Code
-      renderQR(vehicleIdx);
+      renderQR();
 
       // Documentos
-      renderDocs(v.documentos || []);
+      await loadDocumentos();
+    } catch (error) {
+      alert("Veículo não encontrado: " + error.message);
+      backPage();
+      return;
     }
 
     applyPermissions();
+  }
+
+  function toDateInputValue(dateLike) {
+    if (!dateLike) return "";
+    const d = new Date(dateLike);
+    if (isNaN(d)) return "";
+    return d.toISOString().slice(0, 10);
   }
 
   // ── Permissões & modo de exibição ───────────────────────────────────────
@@ -107,7 +133,7 @@ window.onload = () => {
   });
 
   // ── Salvar ──────────────────────────────────────────────────────────────
-  saveBtn.addEventListener("click", () => {
+  saveBtn.addEventListener("click", async () => {
     const modelo = document.getElementById("modelo").value.trim();
     const placa  = document.getElementById("placa").value.trim();
 
@@ -118,56 +144,57 @@ window.onload = () => {
 
     const vehicleData = {
       modelo,
-      categoria:     document.getElementById("categoria").value.trim(),
+      categoria:      document.getElementById("categoria").value,
       placa,
-      ano:           document.getElementById("ano").value,
-      responsavel:   document.getElementById("responsavel").value.trim(),
-      vencimentoDoc: document.getElementById("vencimentoDoc").value,
-      status:        document.getElementById("status").value,
-      obs:           document.getElementById("obs").value.trim(),
-      documentos:    isNew ? [] : (vehicles[vehicleIdx]?.documentos || []),
-      qrId:          isNew ? Date.now().toString(36) : (vehicles[vehicleIdx]?.qrId || Date.now().toString(36))
+      ano:            document.getElementById("ano").value || undefined,
+      status:         document.getElementById("status").value,
+      ultimaInspecao: document.getElementById("vencimentoDoc").value || undefined
+      // obs/responsavel não existem no model Veiculo do backend hoje,
+      // por isso não são enviados (campo "responsavel" deveria ser o
+      // ObjectId de um User em "operador" — fora do escopo desta tela).
     };
 
-    let allVehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
+    saveBtn.disabled = true;
 
-    if (isNew) {
-      allVehicles.push(vehicleData);
-      localStorage.setItem("vehicles", JSON.stringify(allVehicles));
-      alert("Veículo cadastrado com sucesso! QR Code gerado.");
-      const newIdx = allVehicles.length; // 1-based
-      window.location.href = `cadastro_veiculo.html?veiculoID=${newIdx}`;
-    } else {
-      allVehicles[vehicleIdx] = vehicleData;
-      localStorage.setItem("vehicles", JSON.stringify(allVehicles));
-      alert("Veículo atualizado com sucesso!");
-      editMode = false;
-      vehicles = allVehicles;
-      applyPermissions();
-      renderQR(vehicleIdx);
+    try {
+      if (isNew) {
+        const created = await RibasAPI.Veiculos.create(vehicleData);
+        alert("Veículo cadastrado com sucesso!");
+        window.location.href = `cadastro_veiculo.html?veiculoID=${created._id}`;
+      } else {
+        await RibasAPI.Veiculos.update(veiculoId, vehicleData);
+        alert("Veículo atualizado com sucesso!");
+        editMode = false;
+        await init();
+      }
+    } catch (error) {
+      alert("Não foi possível salvar o veículo: " + error.message);
+    } finally {
+      saveBtn.disabled = false;
     }
   });
 
   // ── Excluir ─────────────────────────────────────────────────────────────
-  deleteBtn?.addEventListener("click", () => {
-    const v = vehicles[vehicleIdx];
-    if (!confirm(`Excluir permanentemente o veículo "${v?.modelo}"?`)) return;
-    let allVehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
-    allVehicles.splice(vehicleIdx, 1);
-    localStorage.setItem("vehicles", JSON.stringify(allVehicles));
-    alert("Veículo excluído.");
-    window.location.href = "admin.html";
+  deleteBtn?.addEventListener("click", async () => {
+    if (!confirm(`Excluir permanentemente o veículo "${currentVeiculo?.modelo}"?`)) return;
+
+    try {
+      await RibasAPI.Veiculos.remove(veiculoId);
+      alert("Veículo desativado.");
+      window.location.href = "admin.html";
+    } catch (error) {
+      alert("Não foi possível excluir o veículo: " + error.message);
+    }
   });
 
   // ── QR Code ──────────────────────────────────────────────────────────────
-  function renderQR(idx) {
-    const v = (JSON.parse(localStorage.getItem("vehicles")) || [])[idx];
-    if (!v) return;
+  function renderQR() {
+    if (!currentVeiculo) return;
 
     qrSection.classList.add("visible");
 
-    // URL que aponta para a ficha do veículo (1-based)
-    const qrUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]+$/, "")}cadastro_veiculo.html?veiculoID=${idx + 1}&view=1`;
+    // URL que aponta para a ficha do veículo
+    const qrUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]+$/, "")}cadastro_veiculo.html?veiculoID=${veiculoId}&view=1`;
     document.getElementById("qrLinkText").textContent = qrUrl;
 
     const canvas = document.getElementById("qrCanvas");
@@ -182,112 +209,89 @@ window.onload = () => {
     });
 
     // Botão download
-    document.getElementById("btnDownloadQR").addEventListener("click", () => {
+    const btnDownloadQR = document.getElementById("btnDownloadQR");
+    btnDownloadQR.onclick = () => {
       setTimeout(() => {
         const img = canvas.querySelector("img") || canvas.querySelector("canvas");
         if (!img) return;
         const link = document.createElement("a");
-        link.download = `qr_${v.placa || "veiculo"}.png`;
+        link.download = `qr_${currentVeiculo.placa || "veiculo"}.png`;
         link.href = img.src || img.toDataURL();
         link.click();
       }, 200);
-    });
+    };
   }
 
-  // ── Upload de documentos ─────────────────────────────────────────────────
-  const fileInput      = document.getElementById("fileInput");
-  const fileNameDisp   = document.getElementById("fileNameDisplay");
-  const uploadZone     = document.getElementById("uploadZone");
-  const btnUpload      = document.getElementById("btnUpload");
+  // ── Documentos (via API) ────────────────────────────────────────────────
+  const documentoUrlInput = document.getElementById("documentoUrl");
+  const btnUpload          = document.getElementById("btnUpload");
 
-  if (fileInput) {
-    fileInput.addEventListener("change", (e) => {
-      if (e.target.files.length > 0) {
-        const f = e.target.files[0];
-        if (f.size > 5 * 1024 * 1024) {
-          alert("Arquivo muito grande. Máximo permitido: 5MB.");
-          fileInput.value = "";
-          return;
-        }
-        fileNameDisp.textContent = `✓ ${f.name}`;
-        fileNameDisp.style.display = "block";
-      }
-    });
-
-    // Drag & drop
-    uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("dragover"); });
-    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-    uploadZone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      uploadZone.classList.remove("dragover");
-      if (e.dataTransfer.files.length > 0) {
-        fileInput.files = e.dataTransfer.files;
-        fileInput.dispatchEvent(new Event("change"));
-      }
-    });
+  async function loadDocumentos() {
+    try {
+      const todos = await RibasAPI.DocumentosVeiculo.list();
+      currentDocumentos = todos.filter(d => {
+        const vid = d.veiculoId?._id || d.veiculoId;
+        return vid === veiculoId;
+      });
+    } catch (error) {
+      currentDocumentos = [];
+    }
+    renderDocs();
   }
 
   if (btnUpload) {
-    btnUpload.addEventListener("click", () => {
-      if (!fileInput?.files.length) {
-        alert("Selecione um arquivo antes de anexar.");
+    btnUpload.addEventListener("click", async () => {
+      const tipoDoc = document.getElementById("tipoDoc").value;
+      const url = documentoUrlInput.value.trim();
+
+      if (!url) {
+        alert("Cole o link do documento antes de anexar.");
         return;
       }
 
-      const file     = fileInput.files[0];
-      const tipoDoc  = document.getElementById("tipoDoc").value;
-      const reader   = new FileReader();
-
-      reader.onload = (e) => {
-        const docEntry = {
-          tipo:     tipoDoc,
-          nome:     file.name,
-          tamanho:  (file.size / 1024).toFixed(1) + " KB",
-          data:     new Date().toLocaleDateString("pt-BR"),
-          dataUrl:  e.target.result  // base64 para preview
-        };
-
-        let allVehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
-        if (!allVehicles[vehicleIdx].documentos) allVehicles[vehicleIdx].documentos = [];
-        allVehicles[vehicleIdx].documentos.push(docEntry);
-        localStorage.setItem("vehicles", JSON.stringify(allVehicles));
-        vehicles = allVehicles;
-
-        renderDocs(allVehicles[vehicleIdx].documentos);
-        fileInput.value = "";
-        fileNameDisp.style.display = "none";
-        fileNameDisp.textContent = "";
+      btnUpload.disabled = true;
+      try {
+        await RibasAPI.DocumentosVeiculo.create({
+          veiculoId,
+          nome: tipoDoc,
+          documentoUrl: url
+        });
+        documentoUrlInput.value = "";
+        await loadDocumentos();
         alert("Documento anexado com sucesso!");
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        alert("Não foi possível anexar o documento: " + error.message);
+      } finally {
+        btnUpload.disabled = false;
+      }
     });
   }
 
-  function renderDocs(docs) {
+  function renderDocs() {
     const list = document.getElementById("docList");
     const emptyMsg = document.getElementById("emptyDocs");
     if (!list) return;
 
-    // Remove itens anteriores mas mantém a mensagem vazia
     Array.from(list.querySelectorAll(".doc-item")).forEach(el => el.remove());
 
-    if (!docs || docs.length === 0) {
+    if (!currentDocumentos || currentDocumentos.length === 0) {
       emptyMsg.style.display = "block";
       return;
     }
 
     emptyMsg.style.display = "none";
-    docs.forEach((doc, i) => {
+    currentDocumentos.forEach((doc) => {
       const item = document.createElement("div");
       item.className = "doc-item";
+      const dataFormatada = doc.createdAt ? new Date(doc.createdAt).toLocaleDateString("pt-BR") : "";
       item.innerHTML = `
         <div>
-          <span>📄 ${doc.tipo}</span>
-          <div class="doc-meta">${doc.nome} · ${doc.tamanho} · ${doc.data}</div>
+          <span>📄 ${doc.nome}</span>
+          <div class="doc-meta">${dataFormatada}</div>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
-          ${doc.dataUrl ? `<a href="${doc.dataUrl}" download="${doc.nome}" class="save-btn" style="padding:4px 10px; font-size:0.8rem; background:#0275d8;">⬇</a>` : ""}
-          ${isAdmin ? `<button class="doc-remove" data-idx="${i}" title="Remover">✕</button>` : ""}
+          <a href="${doc.documentoUrl}" target="_blank" rel="noopener" class="save-btn" style="padding:4px 10px; font-size:0.8rem; background:#0275d8;">Abrir</a>
+          ${isAdmin ? `<button class="doc-remove" data-id="${doc._id}" title="Remover">✕</button>` : ""}
         </div>
       `;
       list.appendChild(item);
@@ -295,13 +299,14 @@ window.onload = () => {
 
     // Remover documento
     list.querySelectorAll(".doc-remove").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const idx = parseInt(btn.dataset.idx);
-        let allVehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
-        allVehicles[vehicleIdx].documentos.splice(idx, 1);
-        localStorage.setItem("vehicles", JSON.stringify(allVehicles));
-        vehicles = allVehicles;
-        renderDocs(allVehicles[vehicleIdx].documentos);
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        try {
+          await RibasAPI.DocumentosVeiculo.remove(id);
+          await loadDocumentos();
+        } catch (error) {
+          alert("Não foi possível remover o documento: " + error.message);
+        }
       });
     });
   }

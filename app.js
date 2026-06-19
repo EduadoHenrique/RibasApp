@@ -1,82 +1,85 @@
 /**
  * app.js — Login do Ribas App
- * Senha padrão de primeiro acesso: Ribas@2024
+ *
+ * Faz a autenticação real contra o backend (POST /auth/login).
+ * O papel do usuário (admin/rh/operador) vem do backend, no campo
+ * `tipo` decodificado do token JWT (ADMIN, GESTOR, OPERADOR).
  */
-const DEFAULT_PASSWORD = "Ribas@2024";
 
 const loginBtn   = document.getElementById("loginBtn");
-const accessCards = document.querySelectorAll(".access-card");
+const errorBox   = document.getElementById("loginError");
 
-// Seleção de card de acesso
-accessCards.forEach((card) => {
-  card.addEventListener("click", () => {
-    accessCards.forEach((c) => c.classList.remove("active"));
-    card.classList.add("active");
-  });
-});
+// Mapeia o tipoUsuario do backend (ADMIN, GESTOR, OPERADOR) para o role usado nas páginas
+const TIPO_PARA_ROLE = {
+  ADMIN: "admin",
+  GESTOR: "rh",
+  OPERADOR: "operador"
+};
+
+const ROLE_PARA_PAGINA = {
+  admin: "pages/admin.html",
+  rh: "pages/rh.html",
+  operador: "pages/operador.html"
+};
+
+function showError(message) {
+  if (!errorBox) { alert(message); return; }
+  errorBox.textContent = message;
+  errorBox.style.display = "block";
+}
+
+function hideError() {
+  if (errorBox) errorBox.style.display = "none";
+}
+
+// Decodifica o payload de um JWT (sem validar assinatura — só para ler o "tipo")
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
 
 if (loginBtn) {
-  loginBtn.addEventListener("click", () => {
-    const selected = document.querySelector(".access-card.active");
-    if (!selected) { alert("Selecione um nível de acesso."); return; }
+  loginBtn.addEventListener("click", async () => {
+    hideError();
 
-    const access = selected.innerText.trim().toLowerCase();
-    let user = null;
+    const matricula = document.getElementById("matricula")?.value.trim();
+    const senha      = document.getElementById("senha")?.value;
 
-    if (access.includes("administrador")) {
-      user = {
-        role: "admin",
-        nome: "Gestor de Operações",
-        matricula: "ADM-7716",
-        funcao: "Administrador Master",
-        email: "admin.operacional@ribas.com",
-        password: DEFAULT_PASSWORD   // primeiro login
-      };
-    } else if (access.includes("rh")) {
-      user = {
-        role: "rh",
-        nome: "Carlos Henrique Silva",
-        matricula: "M-88492",
-        funcao: "Analista de Recursos Humanos",
-        email: "carlos.rh@ribas.com",
-        password: DEFAULT_PASSWORD
-      };
-    } else if (access.includes("operador")) {
-      // Tenta encontrar o operador na lista cadastrada pelo RH;
-      // Se não existir ainda, usa dados de demonstração
-      const operators = JSON.parse(localStorage.getItem("operators")) || [];
-      const match = operators.find(op =>
-        op.matricula === (document.querySelector("input[type='text']")?.value?.trim() || "")
-      );
-      user = match
-        ? { role: "operador", ...match, password: match.password || DEFAULT_PASSWORD }
-        : {
-            role: "operador",
-            nome: "Marcos de Souza Silva",
-            matricula: "OP-2026-9",
-            funcao: "Operador de Guindaste Pesado",
-            cnh: "E",
-            validadeCnh: "2028-12-12",
-            aso: "2026-10-15",
-            treinamento: "NR-11 Guindaste",
-            validadeTreinamento: "2027-03-01",
-            status: "Ativo",
-            responsavel: "",  // campo para vincular veículos
-            password: DEFAULT_PASSWORD
-          };
+    if (!matricula || !senha) {
+      showError("Informe matrícula e senha.");
+      return;
     }
 
-    if (!user) { alert("Nível de acesso não reconhecido."); return; }
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Entrando...";
 
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    try {
+      const data = await RibasAPI.Auth.login(matricula, senha);
 
-    // Redireciona (auth.js nas páginas destino detectará primeiro login)
-    const redirect = sessionStorage.getItem("redirectAfterLogin");
-    sessionStorage.removeItem("redirectAfterLogin");
+      const payload = decodeJwtPayload(data.token);
+      const role = TIPO_PARA_ROLE[payload?.tipo] || "operador";
 
-    const map = { admin: "pages/admin.html", rh: "pages/rh.html", operador: "pages/operador.html" };
-    window.location.href = redirect && redirect !== window.location.href
-      ? redirect
-      : map[user.role];
+      // Mantém o role junto do usuário para as páginas/auth.js usarem
+      const usuarioComRole = { ...data.usuario, role };
+      localStorage.setItem("usuario", JSON.stringify(usuarioComRole));
+
+      const redirect = sessionStorage.getItem("redirectAfterLogin");
+      sessionStorage.removeItem("redirectAfterLogin");
+
+      window.location.href = redirect && redirect !== window.location.href
+        ? redirect
+        : ROLE_PARA_PAGINA[role];
+
+    } catch (error) {
+      showError(error.message || "Não foi possível entrar. Verifique suas credenciais.");
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Entrar no sistema";
+    }
   });
 }

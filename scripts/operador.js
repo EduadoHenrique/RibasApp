@@ -1,3 +1,11 @@
+/**
+ * operador.js — Painel do Operador (meus veículos)
+ * Usa RibasAPI.Veiculos (GET /veiculos).
+ *
+ * Filtra os veículos cujo campo "operador" (ObjectId no backend, populado
+ * como objeto) corresponde ao usuário logado.
+ */
+
 window.addEventListener("DOMContentLoaded", () => {
   const user = RibasAuth.user;
 
@@ -9,25 +17,33 @@ window.addEventListener("DOMContentLoaded", () => {
 
   renderMyVehicles();
 
-  function renderMyVehicles() {
-    const allVehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
+  async function renderMyVehicles() {
     const list = document.getElementById("myVehicleList");
+    list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#888;">Carregando seus veículos...</div>`;
 
-    // Filtra veículos cujo responsável bate com o nome ou matrícula do operador logado
-    const meus = allVehicles
-      .map((v, i) => ({ ...v, idx: i }))
-      .filter(v => {
-        if (!v.responsavel) return false;
-        const resp = v.responsavel.toLowerCase();
-        return resp.includes(user.nome?.toLowerCase() || "___") ||
-               resp.includes(user.matricula?.toLowerCase() || "___");
-      });
+    let allVehicles = [];
+    try {
+      allVehicles = await RibasAPI.Veiculos.list();
+    } catch (error) {
+      list.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:40px; color:#c0392b;">
+          <p style="font-size:1.1rem;">Não foi possível carregar seus veículos.</p>
+          <p style="font-size:0.9rem; margin-top:8px;">${error.message}</p>
+        </div>`;
+      return;
+    }
+
+    // Filtra veículos cujo operador vinculado é o usuário logado
+    const meus = allVehicles.filter(v => {
+      const operadorId = v.operador?._id || v.operador;
+      return operadorId && user.id && operadorId === user.id;
+    });
 
     // Stats
     const bloqueados = meus.filter(v => v.status === "Bloqueado").length;
     const vencendo   = meus.filter(v => {
-      if (!v.vencimentoDoc) return false;
-      const days = Math.ceil((new Date(v.vencimentoDoc) - new Date()) / 86400000);
+      if (!v.ultimaInspecao) return false;
+      const days = Math.ceil((new Date(v.ultimaInspecao) - new Date()) / 86400000);
       return days >= 0 && days <= 30;
     }).length;
 
@@ -46,30 +62,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
     list.innerHTML = "";
     meus.forEach(v => {
-      const veiculoId = v.idx + 1;
-      const docsCount = (v.documentos || []).length;
-      const vencDays  = v.vencimentoDoc
-        ? Math.ceil((new Date(v.vencimentoDoc) - new Date()) / 86400000)
+      const vencDays  = v.ultimaInspecao
+        ? Math.ceil((new Date(v.ultimaInspecao) - new Date()) / 86400000)
         : null;
 
       list.innerHTML += `
         <div class="operator-card" style="cursor:pointer;"
-             onclick="window.location.href='cadastro_veiculo.html?veiculoID=${veiculoId}'">
+             onclick="window.location.href='cadastro_veiculo.html?veiculoID=${v._id}'">
           <div class="operator-top">
             <div>
               <h3>${v.modelo}</h3>
-              <p>${v.categoria}</p>
+              <p>${categoriaLabel(v.categoria)}</p>
             </div>
-            <div class="status ${statusClass(v.status)}">${v.status}</div>
+            <div class="status ${statusClass(v.status)}">${v.status || "-"}</div>
           </div>
           <div class="operator-info">
             <p><strong>Placa:</strong> ${v.placa}</p>
-            <p><strong>Ano:</strong> ${v.ano || "-"}</p>
-            <p><strong>Docs:</strong> ${docsCount} arquivo${docsCount !== 1 ? "s" : ""}</p>
+            <p><strong>Capacidade:</strong> ${v.capacidade != null ? v.capacidade : "-"}</p>
           </div>
           ${vencDays !== null && vencDays <= 30
             ? `<div class="alerts"><div class="alert ${vencDays < 0 ? "danger-alert" : "warning-alert"}">
-                Doc. ${vencDays < 0 ? "vencida há " + Math.abs(vencDays) : "vencendo em " + vencDays} dias
+                Inspeção ${vencDays < 0 ? "vencida há " + Math.abs(vencDays) : "vencendo em " + vencDays} dias
                </div></div>`
             : ""}
         </div>
@@ -81,5 +94,10 @@ window.addEventListener("DOMContentLoaded", () => {
     if (s === "Liberado")      return "green-status";
     if (s === "Bloqueado")     return "red-status";
     return "yellow-status";
+  }
+
+  function categoriaLabel(cat) {
+    const map = { GUINDASTE: "Guindaste", CAMINHAO: "Caminhão", MUNCK: "Munck", EMPILHADEIRA: "Empilhadeira" };
+    return map[cat] || cat || "-";
   }
 });

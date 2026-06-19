@@ -60,26 +60,41 @@
     </section>
   </main>
 
+  <script src="../scripts/api.js"></script>
   <script src="../scripts/auth.js" data-roles="admin,rh,operador"></script>
   <script>
-    // Carrega veículos do localStorage no select
-    const vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
+    // Carrega veículos via API (o backend não possui endpoint de check-in/inspeção;
+    // por isso o envio abaixo permanece local, apenas confirmando a inspeção visualmente).
     const sel = document.getElementById("equipamentoSelect");
-    sel.innerHTML = "";
-    if (vehicles.length === 0) {
-      sel.innerHTML = '<option value="">Nenhum veículo cadastrado</option>';
-    } else {
-      vehicles.forEach((v, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = `${v.modelo} (${v.placa})`;
-        sel.appendChild(opt);
-      });
+
+    async function carregarEquipamentos() {
+      sel.innerHTML = '<option value="">Carregando veículos...</option>';
+      try {
+        const veiculos = await RibasAPI.Veiculos.list();
+        sel.innerHTML = "";
+        if (veiculos.length === 0) {
+          sel.innerHTML = '<option value="">Nenhum veículo cadastrado</option>';
+        } else {
+          veiculos.forEach((v) => {
+            const opt = document.createElement("option");
+            opt.value = v._id;
+            opt.textContent = `${v.modelo} (${v.placa})`;
+            sel.appendChild(opt);
+          });
+        }
+      } catch (error) {
+        sel.innerHTML = '<option value="">Erro ao carregar veículos</option>';
+      }
     }
+    carregarEquipamentos();
 
     document.getElementById("logoutBtn").addEventListener("click", () => RibasAuth.logout());
     document.getElementById("btnVoltar").addEventListener("click", () => window.location.href = "operador.html");
     document.getElementById("btnSalvarCheckin").addEventListener("click", () => {
+      if (!sel.value) {
+        alert("Selecione o equipamento antes de enviar a inspeção.");
+        return;
+      }
       if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
       alert("Check-in do Equipamento enviado com sucesso!");
       window.location.href = "operador.html";

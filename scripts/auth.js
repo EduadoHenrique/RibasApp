@@ -1,23 +1,22 @@
 /**
  * auth.js — Guardião de sessão e permissões
  *
- * Inclua este script em TODAS as páginas protegidas, ANTES dos demais scripts,
- * passando data attributes na tag <script> ou usando o padrão de configuração abaixo.
+ * Inclua este script (depois de api.js) em TODAS as páginas protegidas,
+ * ANTES dos demais scripts, passando data attributes na tag <script>.
  *
  * Uso:
+ *   <script src="../scripts/api.js"></script>
  *   <script src="../scripts/auth.js" data-roles="admin,rh"></script>
  *   <script src="../scripts/auth.js" data-roles="admin"></script>
  *   <script src="../scripts/auth.js" data-roles="operador,rh,admin"></script>
  *
  * Se data-roles não for informado, apenas exige que o usuário esteja logado.
  *
- * Senha padrão (primeiro login): "Ribas@2024"
- * Ao detectar senha padrão, redireciona para o perfil correspondente.
+ * A sessão (token JWT + dados do usuário) é alimentada pelo app.js no login,
+ * via RibasAPI (scripts/api.js), e fica em localStorage: "token" e "usuario".
  */
 
 (function () {
-  const DEFAULT_PASSWORD = "Ribas@2024";
-
   // Detecta quais roles têm permissão via data attribute
   const scriptEl    = document.currentScript;
   const allowedRaw  = scriptEl ? scriptEl.getAttribute("data-roles") : null;
@@ -37,27 +36,48 @@
     return pagesPath + "acesso_negado.html";
   }
 
-  // ── 1. Verifica sessão ────────────────────────────────────────────────────
+  // ── 1. Verifica sessão (token + usuário) ──────────────────────────────────
+  const token = localStorage.getItem("token");
   const currentUser = (() => {
-    try { return JSON.parse(localStorage.getItem("currentUser")); }
+    try { return JSON.parse(localStorage.getItem("usuario")); }
     catch { return null; }
   })();
 
-  if (!currentUser || !currentUser.role) {
+  if (!token || !currentUser || !currentUser.role) {
     // Salva a URL que estava tentando acessar para redirecionar depois do login
     sessionStorage.setItem("redirectAfterLogin", window.location.href);
     window.location.replace(rootPath);
     return;
   }
 
-  // ── 2. Verifica permissão ────────────────────────────────────────────────
+  // ── 2. Verifica expiração do token (JWT é válido por 1 dia) ───────────────
+  function isTokenExpired(t) {
+    try {
+      const payload = JSON.parse(atob(t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      if (!payload.exp) return false;
+      return Date.now() >= payload.exp * 1000;
+    } catch {
+      return true;
+    }
+  }
+
+  if (isTokenExpired(token)) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("primeiroLogin");
+    sessionStorage.setItem("redirectAfterLogin", window.location.href);
+    window.location.replace(rootPath);
+    return;
+  }
+
+  // ── 3. Verifica permissão ────────────────────────────────────────────────
   if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     window.location.replace(acessoNegadoPage());
     return;
   }
 
-  // ── 3. Detecta primeiro login (senha padrão) ─────────────────────────────
-  const isFirstLogin = currentUser.password === DEFAULT_PASSWORD || !currentUser.password;
+  // ── 4. Detecta primeiro login (flag vinda do backend) ─────────────────────
+  const isFirstLogin = localStorage.getItem("primeiroLogin") === "1";
   const isAlreadyOnProfile = window.location.pathname.includes("perfil");
 
   if (isFirstLogin && !isAlreadyOnProfile) {
@@ -67,16 +87,16 @@
     return;
   }
 
-  // ── 4. Expõe utilitários globais ─────────────────────────────────────────
+  // ── 5. Expõe utilitários globais ─────────────────────────────────────────
   window.RibasAuth = {
     user: currentUser,
+    token,
     isAdmin:    () => currentUser.role === "admin",
     isRH:       () => currentUser.role === "rh",
     isOperador: () => currentUser.role === "operador",
 
     logout() {
-      localStorage.removeItem("currentUser");
-      sessionStorage.removeItem("firstLogin");
+      RibasAPI.Auth.logout();
       window.location.href = rootPath;
     },
 
@@ -89,11 +109,11 @@
       return false;
     },
 
-    // Marca senha como alterada (remove flag de primeiro login)
-    markPasswordChanged(newPassword) {
-      const u = { ...currentUser, password: newPassword };
-      localStorage.setItem("currentUser", JSON.stringify(u));
-      return u;
+    // Marca senha como alterada (remove flag de primeiro login) via backend
+    async markPasswordChanged(newPassword) {
+      await RibasAPI.Auth.changePassword(newPassword);
+      RibasAPI.session.setFirstLoginDone();
+      return currentUser;
     }
   };
 })();

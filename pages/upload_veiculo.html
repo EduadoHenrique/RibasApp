@@ -34,7 +34,7 @@
 
         <div class="form-group">
           <label>Tipo de Documentação</label>
-          <select style="height: 50px; font-size: 1.1rem;">
+          <select id="tipoDocSelect" style="height: 50px; font-size: 1.1rem;">
             <option>CRLV / Licenciamento Anual</option>
             <option>Laudo de Inspeção Certificada (ART)</option>
             <option>Seguro Obrigatório / RCTR-C</option>
@@ -43,11 +43,8 @@
         </div>
 
         <div class="form-group" style="border: 2px dashed #ccc; padding: 30px; text-align: center; border-radius: 6px; background-color: #fafafa;">
-          <label style="cursor: pointer; display: block; font-size: 1.1rem; font-weight: 500;">
-            📸 Clique para Tirar Foto ou Anexar PDF
-            <input type="file" accept="image/*,application/pdf" style="display: none;" id="fileInput">
-          </label>
-          <p id="fileNameDisplay" style="margin-top: 10px; color: #777; font-size: 0.9rem;">Nenhum arquivo selecionado</p>
+          <p style="margin: 0; font-size: 1.05rem; font-weight: 500;">🔗 O link do documento será solicitado ao clicar em "Fazer Upload"</p>
+          <p style="margin-top: 10px; color: #777; font-size: 0.9rem;">Cole o link de um arquivo já hospedado (Google Drive, OneDrive etc). Upload direto de arquivo ainda não é suportado.</p>
         </div>
       </div>
 
@@ -58,51 +55,68 @@
     </section>
   </main>
 
+  <script src="../scripts/api.js"></script>
+  <script src="../scripts/auth.js" data-roles="admin,rh,operador"></script>
   <script>
-    // Carrega veículos do localStorage
-    const vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
-    const select = document.getElementById("veiculoSelect");
-    select.innerHTML = "";
-    if (vehicles.length === 0) {
-      select.innerHTML = '<option value="">Nenhum veículo cadastrado</option>';
-    } else {
-      vehicles.forEach((v, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = `${v.modelo} (${v.placa})`;
-        select.appendChild(opt);
-      });
-    }
+    const veiculoSelect = document.getElementById("veiculoSelect");
 
-    const fileInput = document.getElementById("fileInput");
-    const fileNameDisplay = document.getElementById("fileNameDisplay");
-
-    fileInput.addEventListener("change", (e) => {
-      if (e.target.files.length > 0) {
-        fileNameDisplay.innerText = "Arquivo pronto: " + e.target.files[0].name;
-        fileNameDisplay.style.color = "#5cb85c";
+    async function carregarVeiculos() {
+      veiculoSelect.innerHTML = '<option value="">Carregando veículos...</option>';
+      try {
+        const veiculos = await RibasAPI.Veiculos.list();
+        veiculoSelect.innerHTML = "";
+        if (veiculos.length === 0) {
+          veiculoSelect.innerHTML = '<option value="">Nenhum veículo cadastrado</option>';
+        } else {
+          veiculos.forEach((v) => {
+            const opt = document.createElement("option");
+            opt.value = v._id;
+            opt.textContent = `${v.modelo} (${v.placa})`;
+            veiculoSelect.appendChild(opt);
+          });
+        }
+      } catch (error) {
+        veiculoSelect.innerHTML = '<option value="">Erro ao carregar veículos</option>';
       }
-    });
+    }
+    carregarVeiculos();
 
-    document.getElementById("btnUpload").addEventListener("click", () => {
-      if (!fileInput.files.length) {
-        alert("Por favor, selecione um documento antes de enviar.");
+    document.getElementById("btnUpload").addEventListener("click", async () => {
+      const veiculoId = veiculoSelect.value;
+      const tipoDoc = document.getElementById("tipoDocSelect").value;
+      const url = window.prompt("Cole o link do documento (Google Drive, OneDrive etc.):");
+
+      if (!veiculoId) {
+        alert("Selecione o veículo de destino.");
         return;
       }
-      if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
-      alert("Documento enviado com sucesso!");
-      window.location.href = "operador.html";
+      if (!url) {
+        alert("É necessário informar o link do documento.");
+        return;
+      }
+
+      try {
+        await RibasAPI.DocumentosVeiculo.create({
+          veiculoId,
+          nome: tipoDoc,
+          documentoUrl: url
+        });
+        if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+        alert("Documento vinculado com sucesso!");
+        window.location.href = "operador.html";
+      } catch (error) {
+        alert("Não foi possível vincular o documento: " + error.message);
+      }
     });
 
     // Voltar para página correta conforme papel
     document.getElementById("btnVoltar").addEventListener("click", () => {
-      const user = JSON.parse(localStorage.getItem("currentUser")) || {};
+      const user = RibasAuth.user || {};
       if (user.role === "admin") window.location.href = "admin.html";
       else window.location.href = "operador.html";
     });
 
     document.getElementById("logoutBtn").addEventListener("click", () => RibasAuth.logout());
   </script>
-  <script src="../scripts/auth.js" data-roles="admin,rh,operador"></script>
 </body>
 </html>

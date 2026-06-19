@@ -61,7 +61,15 @@
 
       <div class="form-grid" style="margin-top:15px;">
         <div class="form-group"><label>Modelo / Equipamento</label><input type="text" id="modelo" placeholder="Ex: Liebherr LTM 1050"></div>
-        <div class="form-group"><label>Categoria</label><input type="text" id="categoria" placeholder="Ex: Guindaste, Empilhadeira..."></div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="categoria">
+            <option value="GUINDASTE">Guindaste</option>
+            <option value="CAMINHAO">Caminhão</option>
+            <option value="MUNCK">Munck</option>
+            <option value="EMPILHADEIRA">Empilhadeira</option>
+          </select>
+        </div>
         <div class="form-group"><label>Placa / Identificação</label><input type="text" id="placa" placeholder="Ex: ABC-1234"></div>
         <div class="form-group"><label>Ano de Fabricação</label><input type="number" id="ano" placeholder="Ex: 2019" min="1980" max="2099"></div>
         <div class="form-group"><label>Responsável Operacional</label><input type="text" id="responsavel" placeholder="Nome do responsável"></div>
@@ -117,17 +125,16 @@
               <option>Outros</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Link do Documento</label>
+            <input type="url" id="documentoUrl" placeholder="https://drive.google.com/...">
+          </div>
         </div>
 
-        <div class="upload-zone" id="uploadZone">
-          <label style="cursor:pointer; display:block;">
-            <div style="font-size:2rem; margin-bottom:8px;">📎</div>
-            <strong>Clique para selecionar ou arraste o arquivo aqui</strong>
-            <p style="color:#999; font-size:0.85rem; margin-top:6px;">PDF, imagem ou documento (máx. 5MB)</p>
-            <input type="file" accept="image/*,application/pdf,.doc,.docx" id="fileInput" style="display:none;">
-          </label>
-          <p id="fileNameDisplay" style="margin-top:10px; color:#5cb85c; font-weight:500; display:none;"></p>
-        </div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:12px;">
+          Cole o link do documento (Google Drive, OneDrive etc.). O upload direto de arquivos
+          ainda não é suportado pelo backend.
+        </p>
 
         <div style="text-align:right; margin-top:12px;">
           <button class="save-btn" style="background-color:#5cb85c;" id="btnUpload">Anexar Documento</button>
@@ -169,6 +176,7 @@
 
   </main>
 
+  <script src="../scripts/api.js"></script>
   <script src="../scripts/auth.js" data-roles="admin,rh,operador"></script>
   <script src="../scripts/cadastro_veiculo.js"></script>
 </body>

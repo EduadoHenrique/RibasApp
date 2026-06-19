@@ -121,7 +121,7 @@
 
   <script>
     const user = (() => {
-      try { return JSON.parse(localStorage.getItem("currentUser")); }
+      try { return JSON.parse(localStorage.getItem("usuario")); }
       catch { return null; }
     })();
 
@@ -142,7 +142,9 @@
     });
 
     document.getElementById("btnLogout").addEventListener("click", () => {
-      localStorage.removeItem("currentUser");
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+      localStorage.removeItem("primeiroLogin");
       window.location.href = "../index.html";
     });
   </script>
