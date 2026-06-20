@@ -2,136 +2,29 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>Ribas App — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ribas App</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
+  <!-- QR Code lib (usado na view de veículo) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <main class="screen">
+  <div id="app">
+    <!-- Views são renderizadas aqui pelo router.js -->
+    <div style="display:flex; align-items:center; justify-content:center; min-height:100vh; color:#888; font-family:sans-serif;">
+      Carregando...
+    </div>
+  </div>
 
-    <!-- HERO -->
-    <section class="hero">
-
-      <div>
-
-        <div class="logo">
-
-          <div class="logo-icon">
-            ⚙️
-          </div>
-
-          <div>
-            <div class="logo-name">RIBAS APP</div>
-            <div class="logo-sub">Gestão Industrial · SENAI PR</div>
-          </div>
-
-        </div>
-
-        <div class="hero-content">
-
-          <div class="hero-badge">
-            <div class="pulse"></div>
-            Sistema operacional ativo
-          </div>
-
-          <h1>
-            Gestão de
-            frotas e
-            documentos
-            industriais
-          </h1>
-
-          <p>
-            Plataforma industrial desenvolvida para controle operacional
-            de guindastes, certificações, checklists e documentação.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div class="hero-footer">
-        <span>Ribas App v2.0 Industrial</span>
-        <span>Uni Senai PR · Afonso Pena</span>
-      </div>
-
-    </section>
-
-    <!-- LOGIN -->
-    <section class="login-side">
-
-      <div class="login-card">
-
-        <div class="card-top">
-          <div class="card-mini">Acesso corporativo</div>
-
-          <h2 class="card-title">
-            Entrar no sistema
-          </h2>
-
-          <p class="card-text">
-            Utilize suas credenciais corporativas para acessar o sistema.
-          </p>
-        </div>
-
-        <div class="form-group">
-          <label>Matrícula / Usuário</label>
-
-          <div class="input-wrap">
-            <input type="text" id="matricula" placeholder="000123">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Senha</label>
-
-          <div class="input-wrap">
-            <input type="password" id="senha" placeholder="••••••••">
-          </div>
-        </div>
-
-        <div id="loginError" style="display:none; color:#c0392b; font-size:0.85rem; margin-top:-4px; margin-bottom:8px;"></div>
-
-        <button class="btn-login" id="loginBtn">
-        Entrar no sistema
-        </button>
-
-        <script src="scripts/api.js"></script>
-        <script src="app.js"></script>
-
-        <div class="bottom-links">
-          <a href="#">Esqueci minha senha</a>
-          <a href="#">Central de suporte</a>
-        </div>
-
-        <div class="status-bar">
-
-          <div class="status-online">
-            <div class="pulse"></div>
-            Sistema online
-          </div>
-
-          <span>Conexão segura</span>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
+  <script src="scripts/api.js"></script>
+  <script type="module" src="scripts/router.js"></script>
 
 </body>
 </html>
