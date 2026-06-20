@@ -95,32 +95,32 @@ export async function init() {
   document.getElementById("logoutBtn").addEventListener("click", () => { RibasAPI.Auth.logout(); window.location.hash = "login"; });
 
   if (isEdit) {
-    document.getElementById("formTitle").textContent   = "Editar Operador";
-    document.getElementById("formBadge").textContent   = "Edição RH";
+    document.getElementById("formTitle").textContent = "Editar Operador";
+    document.getElementById("formBadge").textContent = "Edição RH";
     document.getElementById("userIdBadge").textContent = `ID: ${userId}`;
     document.getElementById("tipoUsuarioGroup").style.display = "block";
     document.getElementById("tipoUsuarioAviso").style.display = "block";
-    document.getElementById("deleteSection").style.display    = "block";
+    document.getElementById("deleteSection").style.display = "block";
 
     try {
       const op = await RibasAPI.Users.getById(userId);
-      val("nome",                 op.nome                || "");
-      val("matricula",            op.matricula           || "");
-      val("funcao",               op.cargo               || "");
-      val("telefone",             op.telefone            || "");
-      val("cnh",                  op.cnh                 || "A");
-      val("validadeCnh",          toDateInput(op.validadeCNH));
-      document.getElementById("aso").checked         = !!op.aso;
+      val("nome", op.nome || "");
+      val("matricula", op.matricula || "");
+      val("funcao", op.cargo || "");
+      val("telefone", op.telefone || "");
+      val("cnh", op.cnh || "A");
+      val("validadeCnh", toDateInput(op.validadeCNH));
+      document.getElementById("aso").checked = !!op.aso;
       document.getElementById("treinamento").checked = !!op.treinamento;
-      val("validadeTreinamento",  toDateInput(op.validadeTreinamento));
-      val("status",               op.status              || "Ativo");
+      val("validadeTreinamento", toDateInput(op.validadeTreinamento));
+      val("status", op.status || "Ativo");
 
       // Busca a role atual do UserLogin (GET /users/:id/role)
       try {
         const roleData = await RibasAPI.Users.getRole(userId);
         if (roleData.tipoUsuario) val("tipoUsuario", roleData.tipoUsuario);
-      } catch {
-        // Se falhar, mantém OPERADOR como padrão no select
+      } catch (err) {
+        console.error("getRole falhou:", err); // ← adiciona isso
       }
 
     } catch (err) {
@@ -148,17 +148,17 @@ export async function init() {
     console.log("[new-user] tipoUsuario no select:", tipoSelecionado);
 
     const data = {
-      nome:               get("nome"),
-      matricula:          get("matricula"),
-      cargo:              get("funcao"),
-      telefone:           get("telefone"),
-      cnh:                get("cnh"),
-      validadeCNH:        get("validadeCnh")          || undefined,
-      aso:                document.getElementById("aso").checked,
-      treinamento:        document.getElementById("treinamento").checked,
-      validadeTreinamento:get("validadeTreinamento")  || undefined,
-      status:             get("status"),
-      tipoUsuario:        tipoSelecionado,
+      nome: get("nome"),
+      matricula: get("matricula"),
+      cargo: get("funcao"),
+      telefone: get("telefone"),
+      cnh: get("cnh"),
+      validadeCNH: get("validadeCnh") || undefined,
+      aso: document.getElementById("aso").checked,
+      treinamento: document.getElementById("treinamento").checked,
+      validadeTreinamento: get("validadeTreinamento") || undefined,
+      status: get("status"),
+      tipoUsuario: tipoSelecionado,
     };
 
     console.log("[new-user] data sendo enviado:", JSON.stringify(data));
@@ -196,8 +196,8 @@ export async function init() {
   });
 }
 
-function get(id)     { return document.getElementById(id)?.value || ""; }
-function val(id, v)  { const el = document.getElementById(id); if (el) el.value = v; }
+function get(id) { return document.getElementById(id)?.value || ""; }
+function val(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
 
 function toDateInput(d) {
   if (!d) return "";
@@ -207,8 +207,8 @@ function toDateInput(d) {
 
 function showMsg(text, type) {
   const el = document.getElementById("formMsg");
-  el.textContent  = text;
+  el.textContent = text;
   el.style.display = "block";
   el.style.background = type === "ok" ? "#d8f0e7" : type === "warn" ? "#fff3cd" : "#f7dde0";
-  el.style.color      = type === "ok" ? "#007F5F" : type === "warn" ? "#856404" : "#c62828";
+  el.style.color = type === "ok" ? "#007F5F" : type === "warn" ? "#856404" : "#c62828";
 }
