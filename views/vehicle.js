@@ -279,27 +279,56 @@ export async function init() {
     const qrUrl = `${window.location.origin}${window.location.pathname}#vehicle?id=${veiculoId}`;
     document.getElementById("qrLinkText").textContent = qrUrl;
 
-    const canvas = document.getElementById("qrCanvas");
-    canvas.innerHTML = "";
+    const container = document.getElementById("qrCanvas");
+    container.innerHTML = "";
 
-    if (typeof QRCode !== "undefined") {
-      new QRCode(canvas, {
-        text: qrUrl,
-        width: 160, height: 160,
-        colorDark: "#1a1a2e", colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
+    // qrcode-generator: API estável, gera matriz de módulos e desenha no canvas
+    try {
+      const qr = qrcode(0, "M");
+      qr.addData(qrUrl);
+      qr.make();
+
+      const size    = 160;
+      const modules = qr.getModuleCount();
+      const cell    = Math.floor(size / modules);
+      const offset  = Math.floor((size - cell * modules) / 2);
+
+      const canvasEl = document.createElement("canvas");
+      canvasEl.width  = size;
+      canvasEl.height = size;
+      container.appendChild(canvasEl);
+
+      const ctx = canvasEl.getContext("2d");
+
+      // Fundo branco
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+
+      // Módulos
+      ctx.fillStyle = "#1a1a2e";
+      for (let row = 0; row < modules; row++) {
+        for (let col = 0; col < modules; col++) {
+          if (qr.isDark(row, col)) {
+            ctx.fillRect(
+              offset + col * cell,
+              offset + row * cell,
+              cell,
+              cell
+            );
+          }
+        }
+      }
 
       document.getElementById("btnDownloadQR").onclick = () => {
-        setTimeout(() => {
-          const img = canvas.querySelector("img") || canvas.querySelector("canvas");
-          if (!img) return;
-          const link = document.createElement("a");
-          link.download = `qr_${currentVeiculo?.placa || "veiculo"}.png`;
-          link.href = img.src || img.toDataURL();
-          link.click();
-        }, 200);
+        const link = document.createElement("a");
+        link.download = `qr_${currentVeiculo?.placa || "veiculo"}.png`;
+        link.href = canvasEl.toDataURL("image/png");
+        link.click();
       };
+
+    } catch (err) {
+      console.error("QR Code erro:", err);
+      container.innerHTML = `<p style="color:#c0392b; font-size:0.85rem;">Não foi possível gerar o QR Code.</p>`;
     }
   }
 
