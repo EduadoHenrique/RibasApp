@@ -1142,3 +1142,198 @@ danger {
   max-width: 1400px;
   margin: 0 auto;
 }
+
+/* ── Responsividade SPA ── */
+
+/* Tablet (≤ 900px) */
+@media (max-width: 900px) {
+
+  .admin-body {
+    padding: 20px;
+  }
+
+  .dashboard-title {
+    font-size: 52px;
+  }
+
+  .panel-title {
+    font-size: 40px;
+  }
+
+  .new-btn {
+    height: 60px;
+    padding: 0 22px;
+    font-size: 20px;
+    border-radius: 16px;
+  }
+
+  .save-btn,
+  .attach-btn {
+    height: 60px;
+    padding: 0 24px;
+    font-size: 20px;
+  }
+
+  .stat-card h2 {
+    font-size: 52px;
+  }
+
+  .form-panel {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+}
+
+/* Mobile (≤ 640px) */
+@media (max-width: 640px) {
+
+  .admin-body {
+    padding: 14px;
+  }
+
+  /* Header: empilha título e ações */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-title {
+    font-size: 38px;
+    line-height: 1;
+  }
+
+  .panel-title {
+    font-size: 30px;
+  }
+
+  /* Ações do header: quebra em duas linhas se necessário */
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .header-actions .new-btn,
+  .header-actions a.new-btn {
+    flex: 1 1 auto;
+    height: 50px;
+    font-size: 15px;
+    padding: 0 14px;
+    border-radius: 12px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .logout-btn {
+    flex: 1 1 auto;
+    height: 50px;
+    font-size: 15px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  /* Badge de ID — não estoura mais */
+  .status-pill {
+    font-size: 11px;
+    padding: 10px 14px;
+    word-break: break-all;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Panel top: empilha título e badge */
+  .panel-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* Stats: 1 coluna */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .stat-card h2 {
+    font-size: 42px;
+  }
+
+  /* Form: 1 coluna */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-panel {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .form-group input,
+  .form-group select {
+    min-height: 58px;
+    font-size: 16px;
+    border-radius: 14px;
+    padding: 0 16px;
+  }
+
+  /* Botões de ação: empilha */
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .save-btn,
+  .attach-btn {
+    height: 54px;
+    font-size: 18px;
+    border-radius: 14px;
+    padding: 0 20px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .new-btn {
+    height: 50px;
+    font-size: 16px;
+    padding: 0 16px;
+    border-radius: 12px;
+  }
+
+  /* Cards de operador/veículo: 1 coluna */
+  .operator-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .operator-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .operator-top h3 {
+    font-size: 22px;
+  }
+
+  /* QR section: empilha */
+  #qrSection .panel-top + div {
+    flex-direction: column;
+  }
+
+  /* Not-authorized page */
+  .dashboard-title[style*="72px"] {
+    font-size: 48px !important;
+  }
+
+}
