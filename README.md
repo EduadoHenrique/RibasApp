@@ -201,7 +201,7 @@ Acesse `http://localhost:3000` no navegador.
 
 # Deploy
 
-*Em breve*
+Link do deploy no Vercel: [Ribas App](https://ribas-app-9cs4.vercel.app/)
 
 ---
 
